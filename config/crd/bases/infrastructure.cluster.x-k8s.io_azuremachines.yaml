@@ -45,19 +45,24 @@ spec:
               type: object
             image:
               properties:
+                gallery:
+                  type: string
+                name:
+                  type: string
                 offer:
                   type: string
                 publisher:
+                  description: 'TODO: Add note on usage'
+                  type: string
+                resourceGroup:
                   type: string
                 sku:
                   type: string
+                subscriptionID:
+                  description: 'TODO: Add note on how to use image ID'
+                  type: string
                 version:
                   type: string
-              required:
-              - offer
-              - publisher
-              - sku
-              - version
               type: object
             location:
               type: string

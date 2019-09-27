@@ -407,10 +407,17 @@ type AvailabilityZone struct {
 }
 
 type Image struct {
-	Publisher string `json:"publisher"`
-	Offer     string `json:"offer"`
-	SKU       string `json:"sku"`
-	Version   string `json:"version"`
+	// TODO: Add note on usage
+	Publisher *string `json:"publisher,omitempty"`
+	Offer     *string `json:"offer,omitempty"`
+	SKU       *string `json:"sku,omitempty"`
+	Version   *string `json:"version,omitempty"`
+
+	// TODO: Add note on how to use image ID
+	SubscriptionID *string `json:"subscriptionID,omitempty"`
+	ResourceGroup  *string `json:"resourceGroup,omitempty"`
+	Gallery        *string `json:"gallery,omitempty"`
+	Name           *string `json:"name,omitempty"`
 }
 
 // APIEndpoint represents a reachable Kubernetes API endpoint.
