@@ -434,8 +434,9 @@ type VMIdentity string
 
 type OSDisk struct {
 	OSType      string      `json:"osType"`
-	ManagedDisk ManagedDisk `json:"managedDisk"`
+	Image       *string     `json:"image,omitempty"`
 	DiskSizeGB  int32       `json:"diskSizeGB"`
+	ManagedDisk ManagedDisk `json:"managedDisk,omitempty"`
 }
 
 type ManagedDisk struct {

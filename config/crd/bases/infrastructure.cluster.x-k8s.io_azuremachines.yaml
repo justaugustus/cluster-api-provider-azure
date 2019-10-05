@@ -71,6 +71,8 @@ spec:
                 diskSizeGB:
                   format: int32
                   type: integer
+                image:
+                  type: string
                 managedDisk:
                   properties:
                     storageAccountType:
@@ -82,7 +84,6 @@ spec:
                   type: string
               required:
               - diskSizeGB
-              - managedDisk
               - osType
               type: object
             providerID:
@@ -94,7 +95,6 @@ spec:
             vmSize:
               type: string
           required:
-          - image
           - location
           - osDisk
           - sshPublicKey

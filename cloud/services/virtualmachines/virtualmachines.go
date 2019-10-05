@@ -70,7 +70,7 @@ func (s *Service) Reconcile(ctx context.Context, spec interface{}) error {
 		return errors.New("invalid vm specification")
 	}
 
-	imageRef, err := generateImageReference(vmSpec.Image)
+	storageProfile, err := generateStorageProfile(*vmSpec)
 	if err != nil {
 		return err
 	}
@@ -113,18 +113,7 @@ func (s *Service) Reconcile(ctx context.Context, spec interface{}) error {
 			HardwareProfile: &compute.HardwareProfile{
 				VMSize: compute.VirtualMachineSizeTypes(vmSpec.Size),
 			},
-			StorageProfile: &compute.StorageProfile{
-				ImageReference: imageRef,
-				OsDisk: &compute.OSDisk{
-					Name:         to.StringPtr(azure.GenerateOSDiskName(vmSpec.Name)),
-					OsType:       compute.OperatingSystemTypes(vmSpec.OSDisk.OSType),
-					CreateOption: compute.DiskCreateOptionTypesFromImage,
-					DiskSizeGB:   to.Int32Ptr(vmSpec.OSDisk.DiskSizeGB),
-					ManagedDisk: &compute.ManagedDiskParameters{
-						StorageAccountType: compute.StorageAccountTypes(vmSpec.OSDisk.ManagedDisk.StorageAccountType),
-					},
-				},
-			},
+			StorageProfile: storageProfile,
 			OsProfile: &compute.OSProfile{
 				ComputerName:  to.StringPtr(vmSpec.Name),
 				AdminUsername: to.StringPtr(azure.DefaultUserName),
@@ -211,6 +200,35 @@ func (s *Service) Delete(ctx context.Context, spec interface{}) error {
 	return err
 }
 
+// generateStorageProfile
+func generateStorageProfile(vmSpec Spec) (*compute.StorageProfile, error) {
+	storageProfile := &compute.StorageProfile{
+		OsDisk: &compute.OSDisk{
+			Name:         to.StringPtr(azure.GenerateOSDiskName(vmSpec.Name)),
+			OsType:       compute.OperatingSystemTypes(vmSpec.OSDisk.OSType),
+			CreateOption: compute.DiskCreateOptionTypesFromImage,
+			DiskSizeGB:   to.Int32Ptr(vmSpec.OSDisk.DiskSizeGB),
+		},
+	}
+
+	if vmSpec.OSDisk.Image != nil {
+		storageProfile.OsDisk.Image = &compute.VirtualHardDisk{}
+		storageProfile.OsDisk.Image.URI = vmSpec.OSDisk.Image
+	} else {
+		imageRef, err := generateImageReference(vmSpec.Image)
+		if err != nil {
+			return nil, err
+		}
+
+		storageProfile.ImageReference = imageRef
+		storageProfile.OsDisk.ManagedDisk = &compute.ManagedDiskParameters{
+			StorageAccountType: compute.StorageAccountTypes(vmSpec.OSDisk.ManagedDisk.StorageAccountType),
+		}
+	}
+
+	return storageProfile, nil
+}
+
 // generateImageReference generates a pointer to a compute.ImageReference which can utilized for VM creation.
 func generateImageReference(image infrav1.Image) (*compute.ImageReference, error) {
 	imageRef := &compute.ImageReference{}
@@ -231,6 +249,8 @@ func generateImageReference(image infrav1.Image) (*compute.ImageReference, error
 		return imageRef, nil
 	}
 
+	// TODO: We may not need this logic if we validate Publisher, Offer, SKU, and Version is all that's
+	//       required for published and marketplace images.
 	if image.SubscriptionID != nil && image.ResourceGroup != nil && image.Gallery != nil && image.Name != nil && image.Version != nil {
 		imageID, err := generateImageID(image)
 		if err != nil {
