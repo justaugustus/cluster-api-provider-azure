@@ -44,22 +44,29 @@ spec:
                   type: string
               type: object
             image:
+              description: 'Image defines information about the image to use for VM
+                creation. There are three ways to specify an image: by ID, by publisher,
+                or by Shared Image Gallery. If specifying an image by ID, only the
+                ID field needs to be set. If specifying an image by publisher, the
+                Publisher, Offer, SKU, and Version fields must be set. If specifying
+                an image from a Shared Image Gallery, the SubscriptionID, ResourceGroup,
+                Gallery, Name, and Version fields must be set.'
               properties:
                 gallery:
+                  type: string
+                id:
                   type: string
                 name:
                   type: string
                 offer:
                   type: string
                 publisher:
-                  description: 'TODO: Add note on usage'
                   type: string
                 resourceGroup:
                   type: string
                 sku:
                   type: string
                 subscriptionID:
-                  description: 'TODO: Add note on how to use image ID'
                   type: string
                 version:
                   type: string
@@ -71,8 +78,6 @@ spec:
                 diskSizeGB:
                   format: int32
                   type: integer
-                image:
-                  type: string
                 managedDisk:
                   properties:
                     storageAccountType:
@@ -84,6 +89,7 @@ spec:
                   type: string
               required:
               - diskSizeGB
+              - managedDisk
               - osType
               type: object
             providerID:
@@ -95,6 +101,7 @@ spec:
             vmSize:
               type: string
           required:
+          - image
           - location
           - osDisk
           - sshPublicKey

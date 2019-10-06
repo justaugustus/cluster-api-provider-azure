@@ -200,31 +200,27 @@ func (s *Service) Delete(ctx context.Context, spec interface{}) error {
 	return err
 }
 
-// generateStorageProfile
+// generateStorageProfile generates a pointer to a compute.StorageProfile which can utilized for VM creation.
 func generateStorageProfile(vmSpec Spec) (*compute.StorageProfile, error) {
+	// TODO: Validate parameters before building storage profile
 	storageProfile := &compute.StorageProfile{
 		OsDisk: &compute.OSDisk{
 			Name:         to.StringPtr(azure.GenerateOSDiskName(vmSpec.Name)),
 			OsType:       compute.OperatingSystemTypes(vmSpec.OSDisk.OSType),
 			CreateOption: compute.DiskCreateOptionTypesFromImage,
 			DiskSizeGB:   to.Int32Ptr(vmSpec.OSDisk.DiskSizeGB),
+			ManagedDisk: &compute.ManagedDiskParameters{
+				StorageAccountType: compute.StorageAccountTypes(vmSpec.OSDisk.ManagedDisk.StorageAccountType),
+			},
 		},
 	}
 
-	if vmSpec.OSDisk.Image != nil {
-		storageProfile.OsDisk.Image = &compute.VirtualHardDisk{}
-		storageProfile.OsDisk.Image.URI = vmSpec.OSDisk.Image
-	} else {
-		imageRef, err := generateImageReference(vmSpec.Image)
-		if err != nil {
-			return nil, err
-		}
-
-		storageProfile.ImageReference = imageRef
-		storageProfile.OsDisk.ManagedDisk = &compute.ManagedDiskParameters{
-			StorageAccountType: compute.StorageAccountTypes(vmSpec.OSDisk.ManagedDisk.StorageAccountType),
-		}
+	imageRef, err := generateImageReference(vmSpec.Image)
+	if err != nil {
+		return nil, err
 	}
+
+	storageProfile.ImageReference = imageRef
 
 	return storageProfile, nil
 }
@@ -232,6 +228,23 @@ func generateStorageProfile(vmSpec Spec) (*compute.StorageProfile, error) {
 // generateImageReference generates a pointer to a compute.ImageReference which can utilized for VM creation.
 func generateImageReference(image infrav1.Image) (*compute.ImageReference, error) {
 	imageRef := &compute.ImageReference{}
+
+	if image.ID != nil {
+		imageRef.ID = to.StringPtr(*image.ID)
+
+		// return early since we should only need the image ID
+		return imageRef, nil
+	} else if image.SubscriptionID != nil && image.ResourceGroup != nil && image.Gallery != nil && image.Name != nil && image.Version != nil {
+		imageID, err := generateImageID(image)
+		if err != nil {
+			return nil, err
+		}
+
+		imageRef.ID = to.StringPtr(imageID)
+
+		// return early since we're referencing an image that may not be published
+		return imageRef, nil
+	}
 
 	if image.Publisher != nil {
 		imageRef.Publisher = image.Publisher
@@ -245,22 +258,10 @@ func generateImageReference(image infrav1.Image) (*compute.ImageReference, error
 	if image.Version != nil {
 		imageRef.Version = image.Version
 
-		// return early since we don't need to generate an image ID for a published image
 		return imageRef, nil
 	}
 
-	// TODO: We may not need this logic if we validate Publisher, Offer, SKU, and Version is all that's
-	//       required for published and marketplace images.
-	if image.SubscriptionID != nil && image.ResourceGroup != nil && image.Gallery != nil && image.Name != nil && image.Version != nil {
-		imageID, err := generateImageID(image)
-		if err != nil {
-			return nil, err
-		}
-
-		imageRef.ID = to.StringPtr(imageID)
-	}
-
-	return imageRef, nil
+	return nil, errors.Errorf("Image reference cannot be generated, as fields are missing: %+v", *imageRef)
 }
 
 // generateImageID generates the resource ID for an image stored in an Azure Shared Image Gallery.

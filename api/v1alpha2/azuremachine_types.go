@@ -37,7 +37,7 @@ type AzureMachineSpec struct {
 	VMSize           string           `json:"vmSize"`
 	AvailabilityZone AvailabilityZone `json:"availabilityZone,omitempty"`
 
-	Image Image `json:"image,omitempty"`
+	Image Image `json:"image"`
 
 	OSDisk OSDisk `json:"osDisk"`
 

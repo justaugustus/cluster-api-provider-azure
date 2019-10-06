@@ -406,18 +406,25 @@ type AvailabilityZone struct {
 	Enabled *bool   `json:"enabled,omitempty"`
 }
 
+// Image defines information about the image to use for VM creation.
+// There are three ways to specify an image: by ID, by publisher, or by Shared Image Gallery.
+// If specifying an image by ID, only the ID field needs to be set.
+// If specifying an image by publisher, the Publisher, Offer, SKU, and Version fields must be set.
+// If specifying an image from a Shared Image Gallery, the SubscriptionID, ResourceGroup,
+// Gallery, Name, and Version fields must be set.
 type Image struct {
-	// TODO: Add note on usage
 	Publisher *string `json:"publisher,omitempty"`
 	Offer     *string `json:"offer,omitempty"`
 	SKU       *string `json:"sku,omitempty"`
-	Version   *string `json:"version,omitempty"`
 
-	// TODO: Add note on how to use image ID
+	ID *string `json:"id,omitempty"`
+
 	SubscriptionID *string `json:"subscriptionID,omitempty"`
 	ResourceGroup  *string `json:"resourceGroup,omitempty"`
 	Gallery        *string `json:"gallery,omitempty"`
 	Name           *string `json:"name,omitempty"`
+
+	Version *string `json:"version,omitempty"`
 }
 
 // APIEndpoint represents a reachable Kubernetes API endpoint.
@@ -434,9 +441,8 @@ type VMIdentity string
 
 type OSDisk struct {
 	OSType      string      `json:"osType"`
-	Image       *string     `json:"image,omitempty"`
 	DiskSizeGB  int32       `json:"diskSizeGB"`
-	ManagedDisk ManagedDisk `json:"managedDisk,omitempty"`
+	ManagedDisk ManagedDisk `json:"managedDisk"`
 }
 
 type ManagedDisk struct {

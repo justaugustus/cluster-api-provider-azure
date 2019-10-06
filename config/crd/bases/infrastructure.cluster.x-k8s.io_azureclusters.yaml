@@ -184,19 +184,19 @@ spec:
                   properties:
                     gallery:
                       type: string
+                    id:
+                      type: string
                     name:
                       type: string
                     offer:
                       type: string
                     publisher:
-                      description: 'TODO: Add note on usage'
                       type: string
                     resourceGroup:
                       type: string
                     sku:
                       type: string
                     subscriptionID:
-                      description: 'TODO: Add note on how to use image ID'
                       type: string
                     version:
                       type: string
@@ -208,8 +208,6 @@ spec:
                     diskSizeGB:
                       format: int32
                       type: integer
-                    image:
-                      type: string
                     managedDisk:
                       properties:
                         storageAccountType:
@@ -221,6 +219,7 @@ spec:
                       type: string
                   required:
                   - diskSizeGB
+                  - managedDisk
                   - osType
                   type: object
                 startupScript:
