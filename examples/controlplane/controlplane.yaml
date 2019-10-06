@@ -31,7 +31,6 @@ spec:
     version: "latest"
   osDisk:
     osType: "Linux"
-    image: "https://augustusimgbuild.blob.core.windows.net/system/Microsoft.Compute/Images/cluster-api-vhds/capi-1570306852-osDisk.cf003122-b1f3-4c56-8247-5c8812f5166f.vhd"
     diskSizeGB: 30
     managedDisk:
       storageAccountType: "Premium_LRS"
@@ -190,7 +189,6 @@ spec:
     version: "latest"
   osDisk:
     osType: "Linux"
-    image: "https://augustusimgbuild.blob.core.windows.net/system/Microsoft.Compute/Images/cluster-api-vhds/capi-1570306852-osDisk.cf003122-b1f3-4c56-8247-5c8812f5166f.vhd"
     diskSizeGB: 30
     managedDisk:
       storageAccountType: "Premium_LRS"
@@ -327,7 +325,6 @@ spec:
     version: "latest"
   osDisk:
     osType: "Linux"
-    image: "https://augustusimgbuild.blob.core.windows.net/system/Microsoft.Compute/Images/cluster-api-vhds/capi-1570306852-osDisk.cf003122-b1f3-4c56-8247-5c8812f5166f.vhd"
     diskSizeGB: 30
     managedDisk:
       storageAccountType: "Premium_LRS"
